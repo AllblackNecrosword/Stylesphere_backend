@@ -39,6 +39,7 @@ const signuphandler = async (req, res) => {
 
     //Generate Token
     const token = generateToken(userAdded._id);
+    //HTTP only cookie
     res.cookie("token", token, {
       path: "/",
       httpOnly: true,
@@ -56,6 +57,9 @@ const signuphandler = async (req, res) => {
         password,
         token,
       });
+    }else{
+      res.status(400);
+      throw new Error("Error in creating a user");
     }
   } catch (error) {
     console.log(error);
@@ -63,9 +67,12 @@ const signuphandler = async (req, res) => {
   }
 };
 
+
+//Login user
 const loginhandler = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
       res.status(400);
       throw new Error("Please fill in the required fields");
@@ -79,12 +86,14 @@ const loginhandler = async (req, res) => {
 
     // Compare passwords
     const passwordMatch = await bcrypt.compare(password, user.password);
+
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid  password" });
     }
 
     // Generate token
     const token = generateToken(user._id);
+    //HTTP only cookie
     res.cookie("token", token, {
       path: "/",
       httpOnly: true,
@@ -102,6 +111,9 @@ const loginhandler = async (req, res) => {
         password,
         token,
       });
+    }else{
+      res.status(400)
+      throw new Error("Invalid Email or password");
     }
   } catch (error) {
     console.log(error);
@@ -112,7 +124,7 @@ const loginhandler = async (req, res) => {
 //logout handler
 const logouthandler = async (req, res) => {
   //send HTTP-only cookie
-  res.cookie("Token", "", {
+  res.cookie("token", "", {
     path: "/",
     httpOnly: true,
     expires: new Date(0), //1day
@@ -121,6 +133,8 @@ const logouthandler = async (req, res) => {
   });
   return res.status(200).json({ message: "Sucessfully logged Out" });
 };
+
+
 
 //Get user data for user profile
 const getUser = async (req, res) => {

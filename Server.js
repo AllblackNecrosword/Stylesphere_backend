@@ -8,6 +8,7 @@ const cors = require("cors");
 app.use(cors());
 
 const userRoute = require("./Routes/userRoute.js");
+const productRoute = require("./Routes/productRoute.js");
 //
 
 //Middlewares
@@ -17,6 +18,7 @@ app.use(express.urlencoded({extended: false}))
 
 //Routes Middlewares
 app.use("/api",userRoute);
+app.use("/api/products",productRoute);
 
 
 const PORT = process.env.PORT || 8000;
