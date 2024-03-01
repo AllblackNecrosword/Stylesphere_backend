@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
-
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 app.use(cors());
 
@@ -12,6 +12,7 @@ const userRoute = require("./Routes/userRoute.js");
 
 //Middlewares
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({extended: false}))
 
 //Routes Middlewares
