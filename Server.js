@@ -6,15 +6,16 @@ dotenv.config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 app.use(cors());
-
 const userRoute = require("./Routes/userRoute.js");
 const productRoute = require("./Routes/productRoute.js");
+const path=require("path");
 //
 
 //Middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}))
+app.use("uploads",express.static(path.join(__dirname,"uploads")))
 
 //Routes Middlewares
 app.use("/api",userRoute);
