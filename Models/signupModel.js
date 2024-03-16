@@ -22,6 +22,10 @@ const signupSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please enter your password"],
     },
+    isAdmin: {
+      type: Boolean,
+      default: false, // Default value for regular users
+    },
   },
   { timestamps: true }
 );

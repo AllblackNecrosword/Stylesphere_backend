@@ -1,54 +1,57 @@
 const { Product } = require("../Models/productModel");
 const { fileSizeFormatter } = require("../utils/fileUpload");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require("../utils/cloudinary");
 
-//Create product
-const createProduct = async (req, res) => {
-  const { name, sku, category, quantity, price, description } = req.body;
-  //validation
-  if (!name || !category || !quantity || !price || !description) {
-    res.status(400);
-    throw new Error("Please fillin all fields");
+
+const createProduct = async (req, res,next) => {
+  const { name, category, productType, quantity, price, description, image,sizes } =
+    req.body;
+    console.log(req.body);
+  try {
+    
+    const result = await cloudinary.uploader.upload(image, {
+      folder: 'Stylesphere',
+    });
+    const product = await Product.create({
+      name,
+      category,
+      productType,
+      quantity,
+      image: {
+        public_id: result.public_id,
+        url: result.secure_url,
+      },
+      price,
+      description,
+      sizes,
+    });
+    res.status(201).json({
+      success:true,
+      product
+    })
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
-  //Manage/Handle image upload
-  let fileData = {};
-  if (req.file) {
-    //save the image into cloudinary
-    let uploadedFile;
-    try {
-      uploadedFile = await cloudinary.uploader.upload(req.file.path, {
-        folder: "Product img",
-        resource_type: "image",
-      });
-    } catch (error) {
-      res.status(500);
-      throw new Error("Image could not be uploaded");
-    }
-    fileData = {
-      fileName: req.file.originalname,
-      filePath: uploadedFile.secure_url,
-      fileType: req.file.mimetype,
-      fileSize: fileSizeFormatter(req.file.size, 2),
-    };
-  }
-  //create product in db
-  const product = await Product.create({
-    user: req.user.id,
-    name,
-    sku,
-    category,
-    quantity,
-    price,
-    description,
-    image: fileData,
-  });
-  res.status(201).json(product);
 };
+  
 
 //Get all products
 const getProducts = async (req, res) => {
   const products = await Product.find().sort("-createdAt");
   res.status(200).json(products);
+};
+
+//Get Total number of products available in database
+
+const totalProducts = async (req, res) => {
+  try {
+    const product = await Product.countDocuments();
+    res.status(200).json({ product });
+  } catch (error) {
+    console.error("Error fetching total count of products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 //Get single products
@@ -92,41 +95,41 @@ const deleteProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   const { name, category, quantity, price, description } = req.body;
-  const{id}=req.params
+  const { id } = req.params;
   const product = await Product.findById(id);
 
   if (!product) {
     res.status(404).json({ message: "Product not found" });
     return;
   }
-  
-    //This one is to match product to the user
-    if (product.user.toString() !== req.user.id) {
-        res.status(401);
-        throw new Error("User not autherized");
-      }
 
-      //handle file upload
-      let fileData = {};
-      if (req.file) {
-        // save in cloudinary
-        let uploadImage;
-        try {
-          uploadImage = await cloudinary.uploader.upload(req.file.path, {
-            folder: "Product img",
-            resource_type: "image",
-          });
-        } catch (error) {
-          res.status(500);
-          throw new Error("Image could not be uploaded");
-        }
-        fileData = {
-            fileName: req.file.originalname,
-            filePath: uploadImage.secure_url,
-            fileType: req.file.mimetype,
-            fileSize: fileSizeFormatter(req.file.size, 2),
-          };
-        }
+  //This one is to match product to the user
+  if (product.user.toString() !== req.user.id) {
+    res.status(401);
+    throw new Error("User not autherized");
+  }
+
+  //handle file upload
+  let fileData = {};
+  if (req.file) {
+    // save in cloudinary
+    let uploadImage;
+    try {
+      uploadImage = await cloudinary.uploader.upload(req.file.path, {
+        folder: "Product img",
+        resource_type: "image",
+      });
+    } catch (error) {
+      res.status(500);
+      throw new Error("Image could not be uploaded");
+    }
+    fileData = {
+      fileName: req.file.originalname,
+      filePath: uploadImage.secure_url,
+      fileType: req.file.mimetype,
+      fileSize: fileSizeFormatter(req.file.size, 2),
+    };
+  }
   // update products
   const updatedProduct = await Product.findByIdAndUpdate(
     { _id: id },
@@ -145,12 +148,12 @@ const updateProduct = async (req, res) => {
   );
 
   res.status(202).json(updatedProduct);
-
 };
 
 module.exports = {
   createProduct,
   getProducts,
+  totalProducts,
   getProductsingle,
   deleteProduct,
   updateProduct,

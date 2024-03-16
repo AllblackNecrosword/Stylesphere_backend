@@ -1,6 +1,6 @@
 const multer = require("multer");
 
-//Define the storage
+// Define the storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads");
@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   },
 });
 
-//Specify file format that can be saved
+// Specify file format that can be saved
 function fileFilter(req, file, cb) {
   if (
     file.mimetype == "image/png" ||
@@ -26,8 +26,7 @@ function fileFilter(req, file, cb) {
   }
 }
 
-const upload = multer({ storage: storage, fileFilter });
-
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 //File size formatter
 const fileSizeFormatter=(bytes,decimal)=>{
     if(bytes ===0){

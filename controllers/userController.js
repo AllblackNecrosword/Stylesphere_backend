@@ -15,6 +15,7 @@ const signuphandler = async (req, res) => {
       res.status(400);
       throw new Error("Please fill in the required fields");
     }
+  
     //password validation
     if (password.length < 6) {
       res.status(400);
@@ -69,6 +70,7 @@ const signuphandler = async (req, res) => {
 
 
 //Login user
+// Login handler
 const loginhandler = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -88,38 +90,58 @@ const loginhandler = async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: "Invalid  password" });
+      return res.status(401).json({ error: "Invalid password" });
     }
 
-    // Generate token
-    const token = generateToken(user._id);
-    //HTTP only cookie
-    res.cookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 86400), // expires in 1 day
-      secure: true,
-      sameSite: "none",
-    });
+    // Check if the user is admin
+    if (user.isAdmin) {
+      // Generate token for admin
+      const token = generateToken(user._id);
+      //HTTP only cookie
+      res.cookie("token", token, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 86400), // expires in 1 day
+        secure: true,
+        sameSite: "none",
+      });
 
-    if (user && passwordMatch) {
-      // If email and password are correct, send success response
       const { _id, email, password } = user;
       res.status(200).json({
         _id,
         email,
         password,
+        isAdmin: true,
         token,
       });
-    }else{
-      res.status(400)
-      throw new Error("Invalid Email or password");
+    } else {
+      // Regular user login
+      // Generate token for regular user
+      const token = generateToken(user._id);
+      //HTTP only cookie
+      res.cookie("token", token, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 86400), // expires in 1 day
+        secure: true,
+        sameSite: "none",
+      });
+
+      const { _id, email, password } = user;
+      res.status(200).json({
+        _id,
+        email,
+        password,
+        isAdmin: false,
+        token,
+      });
     }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 //logout handler
 const logouthandler = async (req, res) => {
