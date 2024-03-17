@@ -6,7 +6,6 @@ const productSchema = mongoose.Schema({
     required: [true, "Please add product name"],
     trim: true,
   },
-
   category: {
     type: String,
     enum: ['men', 'women', 'kids'], // Define allowed categories
@@ -41,17 +40,7 @@ const productSchema = mongoose.Schema({
       trim: true,
     }
   ],
-  image: {
-    public_id:{
-      type:String,
-      required:true
-    },
-    url:{
-      type:String,
-      required:true
-    },
-  },
-
+  image: String
 },
 { timestamps: true }
 );

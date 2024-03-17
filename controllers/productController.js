@@ -1,40 +1,123 @@
 const { Product } = require("../Models/productModel");
-const { fileSizeFormatter } = require("../utils/fileUpload");
-const cloudinary = require("../utils/cloudinary");
 
+// const createProduct = async (req, res,next) => {
+//   const { name, category, productType, quantity, price, description, image,sizes } =
+//     req.body;
+//     console.log(req.body);
+//   try {
 
-const createProduct = async (req, res,next) => {
-  const { name, category, productType, quantity, price, description, image,sizes } =
-    req.body;
-    console.log(req.body);
+//     const result = await cloudinary.uploader.upload(image, {
+//       folder: 'Stylesphere',
+//     });
+//     const product = await Product.create({
+//       name,
+//       category,
+//       productType,
+//       quantity,
+//       image: {
+//         public_id: result.public_id,
+//         url: result.secure_url,
+//       },
+//       price,
+//       description,
+//       sizes,
+//     });
+//     res.status(201).json({
+//       success:true,
+//       product
+//     })
+//   } catch (error) {
+//     console.log(error);
+//     next(error);
+//   }
+// };
+
+// const createProduct = async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       price,
+//       quantity,
+//       description,
+//       category,
+//       productType,
+//       sizes,
+//       image,
+//     } = req.body;
+
+//     // Basic validation
+//     if (!name || !price || !quantity || !description) {
+//       res.status(400);
+//       throw new Error("Please fill all the required fields");
+//     }
+
+//     // Additional validation/sanitization can be performed here
+
+//     // Create product
+//     const product = await Product.create({
+//       name,
+//       price,
+//       quantity,
+//       description,
+//       category,
+//       productType,
+//       sizes,
+//       image,
+//     });
+
+//     // Send response with the created product
+//     res.status(201).json(product);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+const createProduct = async (req, res) => {
   try {
-    
-    const result = await cloudinary.uploader.upload(image, {
-      folder: 'Stylesphere',
-    });
-    const product = await Product.create({
+    const {
       name,
+      price,
+      quantity,
+      description,
       category,
       productType,
-      quantity,
-      image: {
-        public_id: result.public_id,
-        url: result.secure_url,
-      },
-      price,
-      description,
       sizes,
+    } = req.body;
+
+    // Basic validation
+    if (!name || !price || !quantity || !description) {
+      res.status(400);
+      throw new Error("Please fill all the required fields");
+    }
+
+    // Additional validation/sanitization can be performed here
+
+    // Handle image upload
+    if (!req.file || !req.file.filename) {
+      res.status(400);
+      throw new Error("Image upload failed");
+    }
+
+    // Create product
+    const product = await Product.create({
+      name,
+      price,
+      quantity,
+      description,
+      category,
+      productType,
+      sizes,
+      image: req.file.filename, // Set the filename as the image property
     });
-    res.status(201).json({
-      success:true,
-      product
-    })
+
+    // Send response with the created product
+    res.status(201).json(product);
   } catch (error) {
-    console.log(error);
-    next(error);
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
-  
+
 
 //Get all products
 const getProducts = async (req, res) => {
@@ -80,10 +163,6 @@ const deleteProduct = async (req, res) => {
       return;
     }
 
-    if (product.user.toString() !== req.user.id) {
-      res.status(401).json({ message: "User not authorized" });
-      return;
-    }
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     console.error("Error deleting product:", error);
@@ -93,62 +172,62 @@ const deleteProduct = async (req, res) => {
 
 //Update a product
 
-const updateProduct = async (req, res) => {
-  const { name, category, quantity, price, description } = req.body;
-  const { id } = req.params;
-  const product = await Product.findById(id);
+// const updateProduct = async (req, res) => {
+//   const { name, category, quantity, price, description } = req.body;
+//   const { id } = req.params;
+//   const product = await Product.findById(id);
 
-  if (!product) {
-    res.status(404).json({ message: "Product not found" });
-    return;
-  }
+//   if (!product) {
+//     res.status(404).json({ message: "Product not found" });
+//     return;
+//   }
 
-  //This one is to match product to the user
-  if (product.user.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error("User not autherized");
-  }
+//   //This one is to match product to the user
+//   if (product.user.toString() !== req.user.id) {
+//     res.status(401);
+//     throw new Error("User not autherized");
+//   }
 
-  //handle file upload
-  let fileData = {};
-  if (req.file) {
-    // save in cloudinary
-    let uploadImage;
-    try {
-      uploadImage = await cloudinary.uploader.upload(req.file.path, {
-        folder: "Product img",
-        resource_type: "image",
-      });
-    } catch (error) {
-      res.status(500);
-      throw new Error("Image could not be uploaded");
-    }
-    fileData = {
-      fileName: req.file.originalname,
-      filePath: uploadImage.secure_url,
-      fileType: req.file.mimetype,
-      fileSize: fileSizeFormatter(req.file.size, 2),
-    };
-  }
-  // update products
-  const updatedProduct = await Product.findByIdAndUpdate(
-    { _id: id },
-    {
-      name,
-      category,
-      quantity,
-      price,
-      description,
-      image: Object.keys(fileData).length === 0 ? product.image : fileData,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+//   //handle file upload
+//   let fileData = {};
+//   if (req.file) {
+//     // save in cloudinary
+//     let uploadImage;
+//     try {
+//       uploadImage = await cloudinary.uploader.upload(req.file.path, {
+//         folder: "Product img",
+//         resource_type: "image",
+//       });
+//     } catch (error) {
+//       res.status(500);
+//       throw new Error("Image could not be uploaded");
+//     }
+//     fileData = {
+//       fileName: req.file.originalname,
+//       filePath: uploadImage.secure_url,
+//       fileType: req.file.mimetype,
+//       fileSize: fileSizeFormatter(req.file.size, 2),
+//     };
+//   }
+//   // update products
+//   const updatedProduct = await Product.findByIdAndUpdate(
+//     { _id: id },
+//     {
+//       name,
+//       category,
+//       quantity,
+//       price,
+//       description,
+//       image: Object.keys(fileData).length === 0 ? product.image : fileData,
+//     },
+//     {
+//       new: true,
+//       runValidators: true,
+//     }
+//   );
 
-  res.status(202).json(updatedProduct);
-};
+//   res.status(202).json(updatedProduct);
+// };
 
 module.exports = {
   createProduct,
@@ -156,5 +235,5 @@ module.exports = {
   totalProducts,
   getProductsingle,
   deleteProduct,
-  updateProduct,
+  // updateProduct,
 };
