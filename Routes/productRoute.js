@@ -4,12 +4,12 @@ const { createProduct, getProducts, getProductsingle, deleteProduct,totalProduct
 const upload = require("../utils/imageUpload")
 const router = express.Router();
 
-router.post("/",upload.single("file"),createProduct);//protect hatako cha
+router.post("/",upload.single("file"),createProduct);
 router.get("/",getProducts)
 router.get("/totalproducts",totalProducts)
 router.get("/:id",getProductsingle)
 router.delete("/:id",deleteProduct)
-// router.patch("/:id",updateProduct)
+
 
 
 module.exports=router;

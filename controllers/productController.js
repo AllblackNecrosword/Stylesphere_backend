@@ -146,10 +146,10 @@ const getProductsingle = async (req, res) => {
     throw new Error("Product not found");
   }
   //This one is to match product to the user
-  if (product.user.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error("User not autherized");
-  }
+  // if (product.user.toString() !== req.user.id) {
+  //   res.status(401);
+  //   throw new Error("User not autherized");
+  // }
   res.status(200).json(product);
 };
 
