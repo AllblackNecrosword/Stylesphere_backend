@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-
+const bodyParser = require("body-parser")
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -18,6 +18,7 @@ const userproductRoute = require("./Routes/userproductRoute.js");
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
 // Serve static files (images)
 app.use("/images", express.static(path.join(__dirname, "productimg")));
