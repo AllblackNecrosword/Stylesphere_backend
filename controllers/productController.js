@@ -1,88 +1,10 @@
 const { Product } = require("../Models/productModel");
 
-// const createProduct = async (req, res,next) => {
-//   const { name, category, productType, quantity, price, description, image,sizes } =
-//     req.body;
-//     console.log(req.body);
-//   try {
 
-//     const result = await cloudinary.uploader.upload(image, {
-//       folder: 'Stylesphere',
-//     });
-//     const product = await Product.create({
-//       name,
-//       category,
-//       productType,
-//       quantity,
-//       image: {
-//         public_id: result.public_id,
-//         url: result.secure_url,
-//       },
-//       price,
-//       description,
-//       sizes,
-//     });
-//     res.status(201).json({
-//       success:true,
-//       product
-//     })
-//   } catch (error) {
-//     console.log(error);
-//     next(error);
-//   }
-// };
-
-// const createProduct = async (req, res) => {
-//   try {
-//     const {
-//       name,
-//       price,
-//       quantity,
-//       description,
-//       category,
-//       productType,
-//       sizes,
-//       image,
-//     } = req.body;
-
-//     // Basic validation
-//     if (!name || !price || !quantity || !description) {
-//       res.status(400);
-//       throw new Error("Please fill all the required fields");
-//     }
-
-//     // Additional validation/sanitization can be performed here
-
-//     // Create product
-//     const product = await Product.create({
-//       name,
-//       price,
-//       quantity,
-//       description,
-//       category,
-//       productType,
-//       sizes,
-//       image,
-//     });
-
-//     // Send response with the created product
-//     res.status(201).json(product);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 const createProduct = async (req, res) => {
   try {
-    const {
-      name,
-      price,
-      quantity,
-      description,
-      category,
-      productType,
-      sizes,
-    } = req.body;
+    const { name, price, quantity, description, category, productType, sizes } =
+      req.body;
 
     // Basic validation
     if (!name || !price || !quantity || !description) {
@@ -113,11 +35,9 @@ const createProduct = async (req, res) => {
     // Send response with the created product
     res.status(201).json(product);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+     
   }
 };
-
 
 //Get all products
 const getProducts = async (req, res) => {
@@ -229,6 +149,7 @@ const deleteProduct = async (req, res) => {
 //   res.status(202).json(updatedProduct);
 // };
 
+
 module.exports = {
   createProduct,
   getProducts,
@@ -236,4 +157,5 @@ module.exports = {
   getProductsingle,
   deleteProduct,
   // updateProduct,
+
 };

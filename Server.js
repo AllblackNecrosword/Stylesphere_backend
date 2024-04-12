@@ -13,6 +13,7 @@ app.use(cors());
 const userRoute = require("./Routes/userRoute.js");
 const productRoute = require("./Routes/productRoute.js");
 const userproductRoute = require("./Routes/userproductRoute.js");
+const documentRoute = require("./Routes/documentRoute.js");
 
 //Middlewares
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use("/images", express.static(path.join(__dirname, "productimg")));
 app.use("/api", userRoute);
 app.use("/api/products", productRoute);
 app.use("/", userproductRoute);
+app.use("/doc",documentRoute);
 
 // Route to serve image data
 app.get("/api/images/:filename", (req, res) => {
