@@ -1,5 +1,5 @@
 const { Product } = require("../Models/productModel");
-
+const cloudinary = require("../utils/cloudinary");
 
 const createProduct = async (req, res) => {
   try {
@@ -12,13 +12,23 @@ const createProduct = async (req, res) => {
       throw new Error("Please fill all the required fields");
     }
 
-    // Additional validation/sanitization can be performed here
-
     // Handle image upload
-    if (!req.file || !req.file.filename) {
+    // if (!req.file || !req.file.filename) {
+    //   res.status(400);
+    //   throw new Error("Image upload failed");
+    // }
+
+    // Handle image upload to Cloudinary
+  
+    if (!req.file) {
       res.status(400);
       throw new Error("Image upload failed");
     }
+
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "FYP project",
+      resource_type: "image",
+    });
 
     // Create product
     const product = await Product.create({
@@ -29,13 +39,15 @@ const createProduct = async (req, res) => {
       category,
       productType,
       sizes,
-      image: req.file.filename, // Set the filename as the image property
+      // image: req.file.filename, // Set the filename as the image property
+      image: result.secure_url,
     });
 
     // Send response with the created product
     res.status(201).json(product);
   } catch (error) {
-     
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -149,7 +161,6 @@ const deleteProduct = async (req, res) => {
 //   res.status(202).json(updatedProduct);
 // };
 
-
 module.exports = {
   createProduct,
   getProducts,
@@ -157,5 +168,4 @@ module.exports = {
   getProductsingle,
   deleteProduct,
   // updateProduct,
-
 };

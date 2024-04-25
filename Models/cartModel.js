@@ -5,10 +5,19 @@ const cartSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  productId:{
-    type:String,
-  }
+  products: [
+    {
+      productId: {
+        type: String,
+      },
+      quantity: {
+        type: Number,
+        default: 1,
+      },
+    },
+  ],
 });
+
 
 const CartAdd = mongoose.model("Cart", cartSchema);
 module.exports = { CartAdd };

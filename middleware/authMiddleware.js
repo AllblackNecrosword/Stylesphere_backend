@@ -32,9 +32,10 @@
 const jwt = require("jsonwebtoken");
 
 const Protect = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.LocalStorage.token;
+  console.log("Token is",token);
   if (!token) {
-    return res.sendStatus(401); // Unauthorized
+    return res.status(400).json({message:"Not Authorized"})
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

@@ -2,7 +2,7 @@
 const { Product } = require("../Models/productModel");
 // const { dataModel } = require("../Models/dataModel");
 const { Reviews } = require("../Models/reviewModel");
-const { Signupdata } = require("../Models/signupModel");
+const Signupdata = require("../Models/signupModel");
 
 const getMenData = async (req, res) => {
   const product = await Product.find({ category: "men" });
@@ -68,11 +68,12 @@ const getReview = async (req, res) => {
 
 const getallUser = async (req, res) => {
   try {
-    const users = await Signupdata.find({});
+    // const users = await Signupdata.find({});
+    const users = await Signupdata.find({}).select("name phoneno email  isAdmin");
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error getting users" }); // Adjust the error message as needed
+    res.status(500).json({ error: "Error getting users" });
   }
 };
 
