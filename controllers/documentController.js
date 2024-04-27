@@ -1,5 +1,7 @@
 const { CartAdd } = require("../Models/cartModel");
-const {Product} =require("../Models/productModel");
+const { Product } = require("../Models/productModel");
+const { FavAdd } = require("../Models/favModel");
+
 // const addtoCart = async (req, res) => {
 //   console.log("Request body:", req.body);
 //   try {
@@ -65,41 +67,34 @@ const addtoCart = async (req, res) => {
   }
 };
 
-// const showaddtocart = async (req, res) => {
-//   try {
-//     const userId = req.params.userId;
-//     const cartData = await CartAdd.findOne({ userId }).populate('products.productId');
-//     res.status(200).json(cartData);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+
 
 const showaddtocart = async (req, res) => {
   try {
     const userId = req.params.userId;
     const cartData = await CartAdd.findOne({ userId });
     if (!cartData) {
-      return res.status(404).json({ message: 'Cart not found' });
+      return res.status(404).json({ message: "Cart not found" });
     }
 
     // Extract product IDs from the cart
-    const productIds = cartData.products.map(product => product.productId);
+    const productIds = cartData.products.map((product) => product.productId);
 
     // Fetch product details from the Product collection based on the product IDs
     const products = await Product.find({ _id: { $in: productIds } });
 
     // Merge product details with quantities from the cart
-    const cartItems = cartData.products.map(cartProduct => {
-      const productDetails = products.find(product => product._id.equals(cartProduct.productId));
+    const cartItems = cartData.products.map((cartProduct) => {
+      const productDetails = products.find((product) =>
+        product._id.equals(cartProduct.productId)
+      );
       return {
         _id: productDetails._id,
         name: productDetails.name,
         description: productDetails.description,
         price: productDetails.price,
         image: productDetails.image,
-        quantity: cartProduct.quantity
+        quantity: cartProduct.quantity,
       };
     });
 
@@ -110,9 +105,73 @@ const showaddtocart = async (req, res) => {
   }
 };
 
+const addtofav = async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    if (!userId || !productId) {
+      res.status(401).json({ message: "Please provide the details" });
+    }
 
+    const userFav = await FavAdd.findOne({ userId });
+
+    if (userFav) {
+      const productIndex = userFav.products.findIndex(
+        (product) => product.productId === productId
+      );
+
+      if (productIndex === -1) {
+        userFav.products.push({ productId });
+      } else {
+        userFav.products[productIndex].quantity += 1;
+      }
+
+      await userFav.save();
+      res.status(200).json(userFav);
+    } else {
+      const data = await FavAdd.create({
+        userId,
+        products: [{ productId }],
+      });
+      res.status(201).json(data);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const showFav = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const favData = await FavAdd.findOne({ userId });
+    if (!favData) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const productIds = favData.products.map((product) => product.productId);
+
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    const favItems = favData.products.map((favProduct) => {
+      const productDetails = products.find((product) =>
+        product._id.equals(favProduct.productId)
+      );
+      return {
+        _id: productDetails._id,
+        name: productDetails.name,
+        image: productDetails.image,
+      };
+    });
+    res.status(200).json(favItems);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   addtoCart,
   showaddtocart,
+  addtofav,
+  showFav,
 };

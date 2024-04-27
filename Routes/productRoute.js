@@ -1,5 +1,4 @@
 const express = require("express");
-const protect = require("../middleware/authMiddleware");
 const { createProduct, getProducts, getProductsingle, deleteProduct,totalProducts } = require("../controllers/productController");
 const upload = require("../utils/imageUpload")
 const router = express.Router();

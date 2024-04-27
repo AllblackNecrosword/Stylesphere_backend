@@ -19,17 +19,23 @@ const createProduct = async (req, res) => {
     // }
 
     // Handle image upload to Cloudinary
-  
+
     if (!req.file) {
       res.status(400);
       throw new Error("Image upload failed");
     }
 
+    // const result = await cloudinary.uploader.upload(req.file.path, {
+    //   folder: "FYP project",
+    //   resource_type: "image",
+    // });
+
     const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "FYP project",
+      folder: "Stylesphere",
       resource_type: "image",
     });
 
+    console.log(result);
     // Create product
     const product = await Product.create({
       name,
@@ -85,8 +91,9 @@ const getProductsingle = async (req, res) => {
   res.status(200).json(product);
 };
 
-//Delete a product
 
+
+//Delete a product
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);

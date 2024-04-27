@@ -1,0 +1,44 @@
+const addtoCart = async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    if (!userId || !productId) {
+      res.status(400).json({ message: "Please provide both userId and productId" });
+      return;
+    }
+
+    // Find the user's cart
+    let userCart = await CartAdd.findOne({ userId });
+
+    const currentTime = Date.now();
+    const expiryTime = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+
+    if (userCart) {
+      // If the user's cart exists, find the product
+      const productIndex = userCart.products.findIndex((product) => product.productId === productId);
+
+      if (productIndex === -1) {
+        // If the product doesn't exist in the user's cart, push it as a new item
+        userCart.products.push({ productId, addedAt: currentTime });
+      } else {
+        // If the product already exists in the user's cart, update the timestamp
+        userCart.products[productIndex].addedAt = currentTime;
+      }
+
+      // Filter out products that are older than expiry time
+      userCart.products = userCart.products.filter((product) => currentTime - product.addedAt <= expiryTime);
+
+      await userCart.save();
+      res.status(200).json(userCart);
+    } else {
+      // If the user's cart doesn't exist, create a new one
+      const data = await CartAdd.create({
+        userId,
+        products: [{ productId, addedAt: currentTime }],
+      });
+      res.status(201).json(data);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
