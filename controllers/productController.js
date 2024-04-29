@@ -12,30 +12,18 @@ const createProduct = async (req, res) => {
       throw new Error("Please fill all the required fields");
     }
 
-    // Handle image upload
-    // if (!req.file || !req.file.filename) {
-    //   res.status(400);
-    //   throw new Error("Image upload failed");
-    // }
-
     // Handle image upload to Cloudinary
-
     if (!req.file) {
       res.status(400);
       throw new Error("Image upload failed");
     }
-
-    // const result = await cloudinary.uploader.upload(req.file.path, {
-    //   folder: "FYP project",
-    //   resource_type: "image",
-    // });
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "Stylesphere",
       resource_type: "image",
     });
 
-    console.log(result);
+
     // Create product
     const product = await Product.create({
       name,
@@ -47,6 +35,7 @@ const createProduct = async (req, res) => {
       sizes,
       // image: req.file.filename, // Set the filename as the image property
       image: result.secure_url,
+     
     });
 
     // Send response with the created product
@@ -91,20 +80,16 @@ const getProductsingle = async (req, res) => {
   res.status(200).json(product);
 };
 
-
-
 //Delete a product
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
-      res.status(404).json({ message: "Product not found" });
-      return;
+      res.status(401).json({ message: "Product not found" });
     }
-
-    res.status(200).json({ message: "Product deleted successfully" });
+    res.status(200).json({ message: "Sucessfully Deleted" });
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

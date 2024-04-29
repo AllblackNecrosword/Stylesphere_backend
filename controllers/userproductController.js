@@ -69,7 +69,9 @@ const getReview = async (req, res) => {
 const getallUser = async (req, res) => {
   try {
     // const users = await Signupdata.find({});
-    const users = await Signupdata.find({}).select("name phoneno email  isAdmin");
+    const users = await Signupdata.find({}).select(
+      "name phoneno email  isAdmin"
+    );
     res.status(200).json(users);
   } catch (error) {
     console.error(error);

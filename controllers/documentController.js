@@ -3,7 +3,7 @@ const { Product } = require("../Models/productModel");
 const { FavAdd } = require("../Models/favModel");
 
 // const addtoCart = async (req, res) => {
-//   console.log("Request body:", req.body);
+//   // console.log("Request body:", req.body);
 //   try {
 //     const { userId, productId } = req.body;
 //     if (!userId || !productId) {
@@ -12,11 +12,36 @@ const { FavAdd } = require("../Models/favModel");
 //         .json({ message: "Please provide both userId and productId" });
 //       return;
 //     }
-//     const data = await CartAdd.create({
-//       userId,
-//       productId,
-//     });
-//     res.status(201).json(data);
+
+//     // Find the user's cart
+//     const userCart = await CartAdd.findOne({ userId });
+
+//     if (userCart) {
+//       // If the user's cart exists, push the new product into the products array
+//       const productIndex = userCart.products.findIndex(
+//         (product) => product.productId === productId
+//       );
+
+//       if (productIndex === -1) {
+//         // If the product doesn't exist in the user's cart, push it as a new item
+//         userCart.products.push({ productId });
+//       } else {
+//         // If the product already exists in the user's cart, increment the quantity
+//         userCart.products[productIndex].quantity += 1;
+//       }
+
+//       await userCart.save();
+//       res.status(200).json(userCart);
+//       res.status(303).json({message:"Product already added in the cart"})
+
+//     } else {
+//       // If the user's cart doesn't exist, create a new one
+//       const data = await CartAdd.create({
+//         userId,
+//         products: [{ productId }],
+//       });
+//       res.status(201).json(data);
+//     }
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).json({ error: error.message });
@@ -24,7 +49,6 @@ const { FavAdd } = require("../Models/favModel");
 // };
 
 const addtoCart = async (req, res) => {
-  // console.log("Request body:", req.body);
   try {
     const { userId, productId } = req.body;
     if (!userId || !productId) {
@@ -35,39 +59,50 @@ const addtoCart = async (req, res) => {
     }
 
     // Find the user's cart
-    const userCart = await CartAdd.findOne({ userId });
+    let userCart = await CartAdd.findOne({ userId });
 
     if (userCart) {
-      // If the user's cart exists, push the new product into the products array
-      const productIndex = userCart.products.findIndex(
+      // Check if the product already exists in the cart
+      const existingProductIndex = userCart.products.findIndex(
         (product) => product.productId === productId
       );
 
-      if (productIndex === -1) {
+      if (existingProductIndex === -1) {
         // If the product doesn't exist in the user's cart, push it as a new item
-        userCart.products.push({ productId });
-      } else {
-        // If the product already exists in the user's cart, increment the quantity
-        userCart.products[productIndex].quantity += 1;
-      }
+        userCart.products.push({ productId, quantity: 1 });
 
-      await userCart.save();
-      res.status(200).json(userCart);
+        // Save the updated cart
+        userCart = await userCart.save();
+
+        // Send success response to the client
+        res.status(200).json({
+          message: "Product added to cart successfully",
+          cart: userCart,
+        });
+      } else {
+        // If the product already exists in the user's cart, send error response
+        res.status(400).json({
+          error:
+            "Product already exists in the cart. Go to the shopping cart to increase the quantity.",
+        });
+      }
     } else {
       // If the user's cart doesn't exist, create a new one
       const data = await CartAdd.create({
         userId,
-        products: [{ productId }],
+        products: [{ productId, quantity: 1 }],
       });
-      res.status(201).json(data);
+
+      // Send success response to the client
+      res
+        .status(201)
+        .json({ message: "Cart created with product added", cart: data });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 const showaddtocart = async (req, res) => {
   try {
@@ -169,9 +204,70 @@ const showFav = async (req, res) => {
   }
 };
 
+// const updateCartItemQuantity = async (req, res) => {
+//   try {
+//     const { userId, cartData } = req.body;
+//     console.log("Request Body:", req.body); // Debugging: Log request body
+
+//     if (!userId || !cartData) {
+//       res.status(400).json({ message: "Please provide userId and cartData" });
+//       return;
+//     }
+
+//     const userCart = await CartAdd.findOne({ userId });
+//     console.log("User Cart:", userCart); // Debugging: Log user's cart
+
+//     if (!userCart) {
+//       res.status(404).json({ message: "Cart not found" });
+//       return;
+//     }
+
+//     // Update quantities in the user's cart
+//     cartData.forEach((item) => {
+//       const productIndex = userCart.products.findIndex(
+//         (p) => p._id.toString() === item._id
+//       );
+//       if (productIndex !== -1) {
+//         userCart.products[productIndex].quantity = item.quantity;
+//       }
+//     });
+
+//     // Save the updated user's cart
+//     await userCart.save();
+
+//     res
+//       .status(200)
+//       .json({ message: "Cart item quantities updated successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+const updatecartQuantity = async (req, res) => {
+  const { userId, cartData } = req.body;
+  try {
+    let userCart = await CartAdd.findOne({ userId });
+    cartData.forEach((item) => {
+      const product = userCart.products.find((p) => p.productId === item._id);
+      if (product) {
+        product.quantity = item.quantity;
+      }
+    });
+    userCart = await userCart.save();
+    res
+      .status(200)
+      .json({ message: "Cart data updated successfully", cartData: userCart });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update cart data" });
+  }
+};
+
 module.exports = {
   addtoCart,
   showaddtocart,
   addtofav,
   showFav,
+  updatecartQuantity,
 };
