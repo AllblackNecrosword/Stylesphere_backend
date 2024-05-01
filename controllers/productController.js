@@ -23,7 +23,6 @@ const createProduct = async (req, res) => {
       resource_type: "image",
     });
 
-
     // Create product
     const product = await Product.create({
       name,
@@ -35,7 +34,6 @@ const createProduct = async (req, res) => {
       sizes,
       // image: req.file.filename, // Set the filename as the image property
       image: result.secure_url,
-     
     });
 
     // Send response with the created product
@@ -94,64 +92,90 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-//Update a product
-
 // const updateProduct = async (req, res) => {
-//   const { name, category, quantity, price, description } = req.body;
-//   const { id } = req.params;
-//   const product = await Product.findById(id);
+//   // console.log(req.file);
+//   try {
+//     const { name, price, quantity, description, category, productType, sizes } =
+//       req.body;
 
-//   if (!product) {
-//     res.status(404).json({ message: "Product not found" });
-//     return;
-//   }
+//     // Basic validation
+//     if (!name || !price || !quantity || !description) {
+//       res.status(400);
+//       throw new Error("Please fill all the required fields");
+//     }
 
-//   //This one is to match product to the user
-//   if (product.user.toString() !== req.user.id) {
-//     res.status(401);
-//     throw new Error("User not autherized");
-//   }
+//     let updatedData = {
+//       name,
+//       price,
+//       quantity,
+//       description,
+//       category,
+//       productType,
+//       sizes,
+//     };
 
-//   //handle file upload
-//   let fileData = {};
-//   if (req.file) {
-//     // save in cloudinary
-//     let uploadImage;
-//     try {
-//       uploadImage = await cloudinary.uploader.upload(req.file.path, {
-//         folder: "Product img",
+//     let product = await Product.findById(req.params.id);
+
+//     // Handle image update if a new image is uploaded
+//     if (req.file) {
+//       // Delete the old image from Cloudinary
+//       await cloudinary.uploader.destroy(product.imageId);
+
+//       // Upload the new image to Cloudinary
+//       const result = await cloudinary.uploader.upload(req.file.path, {
+//         folder: "Stylesphere",
 //         resource_type: "image",
 //       });
-//     } catch (error) {
-//       res.status(500);
-//       throw new Error("Image could not be uploaded");
-//     }
-//     fileData = {
-//       fileName: req.file.originalname,
-//       filePath: uploadImage.secure_url,
-//       fileType: req.file.mimetype,
-//       fileSize: fileSizeFormatter(req.file.size, 2),
-//     };
-//   }
-//   // update products
-//   const updatedProduct = await Product.findByIdAndUpdate(
-//     { _id: id },
-//     {
-//       name,
-//       category,
-//       quantity,
-//       price,
-//       description,
-//       image: Object.keys(fileData).length === 0 ? product.image : fileData,
-//     },
-//     {
-//       new: true,
-//       runValidators: true,
-//     }
-//   );
 
-//   res.status(202).json(updatedProduct);
+//       // Update the image URL and image ID in the product object
+//       updatedData.image = result.secure_url;
+//       updatedData.imageId = result.public_id;
+//     }
+
+//     // Update the product data in the database
+//     product = await Product.findByIdAndUpdate(req.params.id, updatedData, {
+//       new: true,
+//     });
+
+//     // Send the updated product data in the response
+//     res.status(200).json({ product });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: error.message });
+//   }
 // };
+
+const updateProduct = async (req, res) => {
+  const productId = req.params.id;
+  const { name, category, productType, quantity, price, description, sizes } =
+    req.body;
+  try {
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    // Update the product fields
+    product.name = name;
+    product.category = category;
+    product.productType = productType;
+    product.quantity = quantity;
+    product.price = price;
+    product.description = description;
+    product.sizes = sizes;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      product.image = result.secure_url;
+    }
+
+    await product.save();
+    res.json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update product" });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -159,5 +183,5 @@ module.exports = {
   totalProducts,
   getProductsingle,
   deleteProduct,
-  // updateProduct,
+  updateProduct,
 };
