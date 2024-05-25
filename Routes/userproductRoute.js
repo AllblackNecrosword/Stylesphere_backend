@@ -9,7 +9,15 @@ const {
   searchProduct,
   createReview,
   getReview,
-  getallUser
+  getallUser,
+  getsingleMenProduct,
+  getsingleWomenProduct,
+  getsingleKidProduct,
+  getlatestMenData,
+  getlatestWomenData,
+  getlatestKidsData,
+  handleUserMangement,
+
 } = require("../controllers/userproductController");
 
 router.get("/getmenData", getMenData);
@@ -19,5 +27,14 @@ router.get("/search", searchProduct);
 router.post("/postreview", createReview);
 router.get("/getreview/:productId", getReview);
 router.get("/getalluser", getallUser);
+router.get("/getsingleMenproduct/:category", getsingleMenProduct);
+router.get("/getsingleWomenproduct/:category", getsingleWomenProduct);
+router.get("/getsingleKidproduct/:category", getsingleKidProduct);
+router.get("/getlatestMenData", getlatestMenData);
+router.get("/getsingleWomenProduct", getlatestWomenData);
+router.get("/getsingleKidProduct", getlatestKidsData);
+router.put('/user/:userid/role',handleUserMangement)
+
+
 
 module.exports = router;

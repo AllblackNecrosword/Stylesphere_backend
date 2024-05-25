@@ -79,6 +79,98 @@ const getallUser = async (req, res) => {
   }
 };
 
+const getsingleMenProduct = async (req, res) => {
+  const catgeory = req.params.category;
+  try {
+    const product = await Product.find({
+      category: "men",
+      productType: catgeory,
+    });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(404).json(error);
+    console.log(error);
+  }
+};
+
+const getsingleWomenProduct = async (req, res) => {
+  // res.status(200).json({message:"I am running"});
+  const product = await Product.find({
+    category: "women",
+    productType: "clothes",
+  });
+  res.status(200).json(product);
+};
+const getsingleKidProduct = async (req, res) => {
+  // res.status(200).json({message:"I am running"});
+  const product = await Product.find({
+    category: "kids",
+    productType: "clothes",
+  });
+  res.status(200).json(product);
+};
+
+const getlatestMenData = async (req, res) => {
+  try {
+    // Find the latest 4 products of the specified category
+    const latestProducts = await Product.find({ category: "men" })
+      .sort({ createdAt: -1 })
+      .limit(4);
+    res.json(latestProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch latest products" });
+  }
+};
+const getlatestWomenData = async (req, res) => {
+  try {
+    // Find the latest 4 products of the specified category
+    const latestProducts = await Product.find({ category: "women" })
+      .sort({ createdAt: -1 })
+      .limit(4);
+    res.json(latestProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch latest products" });
+  }
+};
+const getlatestKidsData = async (req, res) => {
+  try {
+    // Find the latest 4 products of the specified category
+    const latestProducts = await Product.find({ category: "kids" })
+      .sort({ createdAt: -1 })
+      .limit(4);
+    res.json(latestProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch latest products" });
+  }
+};
+
+// const Apple=(req,res)=>{
+// res.status(200).json({message:"I am Apple"})
+// }
+
+const handleUserMangement = async (req, res) => {
+  const userId = req.params.userid;
+  const { isAdmin } = req.body;
+
+  try {
+    const user = await Signupdata.findById(userId);
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    user.isAdmin = isAdmin;
+    await user.save();
+
+    res.send({ message: "User role updated successfully" });
+  } catch (error) {
+    res.status(500).send({ error: "Error updating user role" });
+  }
+  // res.status(200).json({message:"Working"});
+};
+
 module.exports = {
   getMenData,
   getWomenData,
@@ -87,4 +179,11 @@ module.exports = {
   createReview,
   getReview,
   getallUser,
+  getsingleMenProduct,
+  getsingleWomenProduct,
+  getsingleKidProduct,
+  getlatestMenData,
+  getlatestWomenData,
+  getlatestKidsData,
+  handleUserMangement
 };

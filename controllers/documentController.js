@@ -248,6 +248,31 @@ const deleteCartData = async (req, res) => {
   }
 };
 
+
+const deleteWishlistdata=async(req,res)=>{
+  // res.status(200).json({message:"Running Sucessfully"})
+  const userId=req.params.userId;
+  const productId = req.params.productId;
+
+  try {
+    const item = await FavAdd.findOne({userId});
+    if(!item){
+      return res.status(404).json({message:"Item not found"});
+    }
+
+    item.products = item.products.filter((product)=> product.productId !== productId);
+
+    await item.save();
+
+    return res.status(200).json({message:"Product deleted form wishlist"});
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({message:"Internal server error"});
+    
+  }
+
+}
 module.exports = {
   addtoCart,
   showaddtocart,
@@ -255,4 +280,5 @@ module.exports = {
   showFav,
   updatecartQuantity,
   deleteCartData,
+  deleteWishlistdata,
 };

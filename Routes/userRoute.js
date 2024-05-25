@@ -15,4 +15,6 @@ router.get("/logout", logouthandler);
 router.get("/getuser",Protect,getUser);
 router.get("/loggedin", loginStatus);
 
+// router.get("/mugi",tryout)
+
 module.exports = router;

@@ -1,44 +1,35 @@
-const addtoCart = async (req, res) => {
+const deleteCartData = async (req, res) => {
+
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+
+  // console.log("Received userId:", userId);
+  // console.log("Received productId:", productId);
+
   try {
-    const { userId, productId } = req.body;
-    if (!userId || !productId) {
-      res.status(400).json({ message: "Please provide both userId and productId" });
-      return;
+    // Find the user's cart data by userId
+    let cart = await CartAdd.findOne({ userId });
+
+    // If cart data doesn't exist, return an error
+    if (!cart) {
+      return res.status(404).json({ message: "Cart data not found" });
     }
 
-    // Find the user's cart
-    let userCart = await CartAdd.findOne({ userId });
+    // Filter out the selected product from the cart data
+    cart.products = cart.products.filter(
+      (product) => product.productId !== productId
+    );
 
-    const currentTime = Date.now();
-    const expiryTime = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+    // Save the updated cart data
+    await cart.save();
 
-    if (userCart) {
-      // If the user's cart exists, find the product
-      const productIndex = userCart.products.findIndex((product) => product.productId === productId);
-
-      if (productIndex === -1) {
-        // If the product doesn't exist in the user's cart, push it as a new item
-        userCart.products.push({ productId, addedAt: currentTime });
-      } else {
-        // If the product already exists in the user's cart, update the timestamp
-        userCart.products[productIndex].addedAt = currentTime;
-      }
-
-      // Filter out products that are older than expiry time
-      userCart.products = userCart.products.filter((product) => currentTime - product.addedAt <= expiryTime);
-
-      await userCart.save();
-      res.status(200).json(userCart);
-    } else {
-      // If the user's cart doesn't exist, create a new one
-      const data = await CartAdd.create({
-        userId,
-        products: [{ productId, addedAt: currentTime }],
-      });
-      res.status(201).json(data);
-    }
+    // Return success response
+    return res
+      .status(200)
+      .json({ message: "Product deleted from cart successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    // Return error response
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -1,6 +1,7 @@
 const Signupdata = require("../Models/signupModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Order = require("../Models/orderModel");
 
 const signuphandler = async (req, res) => {
   try {
@@ -70,15 +71,13 @@ const loginhandler = async (req, res) => {
 
     //Check if the user is admin
     if (user.isAdmin) {
-      const token = jwt.sign({ user, role:"admin" }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ user, role: "admin" }, process.env.JWT_SECRET, {
         expiresIn: "10s",
       });
-      res
-        .status(200)
-        .json({
-          message: "Login sucessful for admin",
-          data: { user, token, role: "admin" },
-        });
+      res.status(200).json({
+        message: "Login sucessful for admin",
+        data: { user, token, role: "admin" },
+      });
     } else {
       const token = jwt.sign(
         { userId: user._id, email: user.email, name: user.name },
@@ -141,10 +140,15 @@ const loginStatus = async (req, res) => {
   // res.status(200).json({message:"Loginstatus working"});
 };
 
+
+
+
+
 module.exports = {
   loginhandler,
   signuphandler,
   logouthandler,
   getUser,
   loginStatus,
+
 };

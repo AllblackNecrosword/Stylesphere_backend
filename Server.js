@@ -14,6 +14,8 @@ const userRoute = require("./Routes/userRoute.js");
 const productRoute = require("./Routes/productRoute.js");
 const userproductRoute = require("./Routes/userproductRoute.js");
 const documentRoute = require("./Routes/documentRoute.js");
+const orderRoute= require("./Routes/orderRoute.js");
+const contentRoute = require('./Routes/contentRoute.js');
 
 //Middlewares
 app.use(express.json());
@@ -29,6 +31,8 @@ app.use("/api", userRoute);
 app.use("/api/products", productRoute);
 app.use("/", userproductRoute);
 app.use("/doc",documentRoute);
+app.use("/order",orderRoute);
+app.use('/content',contentRoute);
 
 // Route to serve image data
 app.get("/api/images/:filename", (req, res) => {

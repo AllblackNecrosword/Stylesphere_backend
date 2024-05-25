@@ -70,11 +70,7 @@ const getProductsingle = async (req, res) => {
     res.status(404);
     throw new Error("Product not found");
   }
-  //This one is to match product to the user
-  // if (product.user.toString() !== req.user.id) {
-  //   res.status(401);
-  //   throw new Error("User not autherized");
-  // }
+
   res.status(200).json(product);
 };
 
@@ -177,6 +173,33 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const getreviewUpdate = async (req, res) => {
+  const productId = req.params.id;
+  const { rating, rated } = req.body;
+  //   console.log(req.body);
+  // console.log(productId);
+  try {
+    // Update the product's rating and rated fields in the database
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        rating: rating,
+        rated: rated,
+      },
+      { new: true }
+    );
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update product rating" });
+  }
+};
+
+
+
+
+
 module.exports = {
   createProduct,
   getProducts,
@@ -184,4 +207,6 @@ module.exports = {
   getProductsingle,
   deleteProduct,
   updateProduct,
+  getreviewUpdate,
+
 };
