@@ -147,9 +147,7 @@ const getlatestKidsData = async (req, res) => {
   }
 };
 
-// const Apple=(req,res)=>{
-// res.status(200).json({message:"I am Apple"})
-// }
+
 
 const handleUserMangement = async (req, res) => {
   const userId = req.params.userid;
@@ -171,6 +169,14 @@ const handleUserMangement = async (req, res) => {
   // res.status(200).json({message:"Working"});
 };
 
+
+const getsingleUserDetail = async(req,res)=>{
+  const userid = req.params.id;
+  const user = await Signupdata.findById(userid);
+  res.status(200).json(user);
+}
+
+
 module.exports = {
   getMenData,
   getWomenData,
@@ -185,5 +191,6 @@ module.exports = {
   getlatestMenData,
   getlatestWomenData,
   getlatestKidsData,
-  handleUserMangement
+  handleUserMangement,
+  getsingleUserDetail,
 };

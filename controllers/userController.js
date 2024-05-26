@@ -136,13 +136,13 @@ const loginStatus = async (req, res) => {
   } else {
     return res.json(false);
   }
-
   // res.status(200).json({message:"Loginstatus working"});
 };
 
-
-
-
+const getuserNumber = async (req, res) => {
+  const user = await Signupdata.countDocuments();
+  res.status(200).json(user);
+};
 
 module.exports = {
   loginhandler,
@@ -150,5 +150,5 @@ module.exports = {
   logouthandler,
   getUser,
   loginStatus,
-
+  getuserNumber,
 };

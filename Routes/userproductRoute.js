@@ -17,6 +17,7 @@ const {
   getlatestWomenData,
   getlatestKidsData,
   handleUserMangement,
+  getsingleUserDetail
 
 } = require("../controllers/userproductController");
 
@@ -33,6 +34,7 @@ router.get("/getsingleKidproduct/:category", getsingleKidProduct);
 router.get("/getlatestMenData", getlatestMenData);
 router.get("/getsingleWomenProduct", getlatestWomenData);
 router.get("/getsingleKidProduct", getlatestKidsData);
+router.get("/getsingleuserdetail/:id", getsingleUserDetail);
 router.put('/user/:userid/role',handleUserMangement)
 
 

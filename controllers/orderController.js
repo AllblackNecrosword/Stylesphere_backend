@@ -99,7 +99,7 @@ const getSingleOrder = async (req, res) => {
 // };
 
 const cancelOrder = async (req, res) => {
-  const orderID = req.params.orderId;
+  const orderID = req.params.id;
   console.log(orderID);
   try {
     await Order.createIndexes({ orderId: 1 });
@@ -113,7 +113,6 @@ const cancelOrder = async (req, res) => {
         message: "Product cannot be cancelled as it's not in 'Pending' status",
       });
     }
-
     await Order.updateOne(
       { _id: orderID },
       { $set: { cancellationStatus: "Canceled" } }
@@ -131,7 +130,6 @@ const ShowcancelOrder = async (req, res) => {
     // const order = await Order.find({
     //   $and: [{ cancellationStatus: "Canceled" }, { status: "Cancelled" }],
     // });
-
     res.status(200).json(order);
   } catch (error) {
     console.error(error);
