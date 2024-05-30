@@ -8,7 +8,6 @@ router.patch(
   upload.fields([{ name: "file1" }, { name: "file2" }]),
   AddBanner
 );
-// router.patch("/Herobanner", upload.single("file"), AddBanner);
-// router.patch("/Herobanner", AddBanner);
+
 router.get("/",getHerobanner);
 module.exports = router;

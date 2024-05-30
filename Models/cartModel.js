@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const cartSchema = mongoose.Schema({
@@ -14,10 +15,12 @@ const cartSchema = mongoose.Schema({
         type: Number,
         default: 1,
       },
+      size: { // Add size field
+        type: String,
+      },
     },
   ],
 });
-
 
 const CartAdd = mongoose.model("Cart", cartSchema);
 module.exports = { CartAdd };

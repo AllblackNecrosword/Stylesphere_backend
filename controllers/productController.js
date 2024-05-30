@@ -88,58 +88,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-// const updateProduct = async (req, res) => {
-//   // console.log(req.file);
-//   try {
-//     const { name, price, quantity, description, category, productType, sizes } =
-//       req.body;
 
-//     // Basic validation
-//     if (!name || !price || !quantity || !description) {
-//       res.status(400);
-//       throw new Error("Please fill all the required fields");
-//     }
-
-//     let updatedData = {
-//       name,
-//       price,
-//       quantity,
-//       description,
-//       category,
-//       productType,
-//       sizes,
-//     };
-
-//     let product = await Product.findById(req.params.id);
-
-//     // Handle image update if a new image is uploaded
-//     if (req.file) {
-//       // Delete the old image from Cloudinary
-//       await cloudinary.uploader.destroy(product.imageId);
-
-//       // Upload the new image to Cloudinary
-//       const result = await cloudinary.uploader.upload(req.file.path, {
-//         folder: "Stylesphere",
-//         resource_type: "image",
-//       });
-
-//       // Update the image URL and image ID in the product object
-//       updatedData.image = result.secure_url;
-//       updatedData.imageId = result.public_id;
-//     }
-
-//     // Update the product data in the database
-//     product = await Product.findByIdAndUpdate(req.params.id, updatedData, {
-//       new: true,
-//     });
-
-//     // Send the updated product data in the response
-//     res.status(200).json({ product });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 const updateProduct = async (req, res) => {
   const productId = req.params.id;

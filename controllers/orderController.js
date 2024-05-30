@@ -83,20 +83,7 @@ const getSingleOrder = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-// const getOrderbyID = async (req, res) => {
-//   const orderId = req.params.orderid;
-//   try {
-//     // const order = await Order.findOne({customer});
-//     const order = await Order.find(orderId);
-//     if (!order) {
-//       return res.status(404).json({ message: "Order not found" });
-//     }
-//     res.status(200).json(order);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
+
 
 const cancelOrder = async (req, res) => {
   const orderID = req.params.id;
